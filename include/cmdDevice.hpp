@@ -1,8 +1,10 @@
 #pragma once
 #include "commander.hpp"
 #include "deviceOrderProcess.hpp"
+#include "wifiOrderProcess.hpp"
 #include <map>
 extern DeviceOrder deviceOrder;
+extern WiFiOrder wifiOrder;
 class CmdDevice : public Commander
 {
 public:
@@ -34,6 +36,56 @@ public:
     }
 
 private:
+    /**
+     * 设备重启
+     */
+    void restartSystem(DynamicJsonDocument doc)
+    {
+        cout << ">> 设备即将在 3 秒内重启!" << endl;
+        HAL_Delay(3000);
+        HAL_NVIC_SystemReset();
+    }
+    /**
+     * 获取 WiFi 模块时间
+     */
+    void queryDate(DynamicJsonDocument doc)
+    {
+        cout << ">> 即将获取 WiFi 模块时间!" << endl;
+        wifiOrder.queryDate();
+    }
+    /**
+     * 获取 WiFi Mac
+     */
+    void queryMac(DynamicJsonDocument doc)
+    {
+        cout << ">> 即将获取 WiFi Mac!" << endl;
+        wifiOrder.queryMac();
+    }
+    /**
+     * 获取 WiFi 网络状态
+     */
+    void queryNetState(DynamicJsonDocument doc)
+    {
+        cout << ">> 即将获取 WiFi 网络状态!" << endl;
+        wifiOrder.queryNetState();
+    }
+    /**
+     * 获取 WiFi Version
+     */
+    void queryWiFiVersion(DynamicJsonDocument doc)
+    {
+        cout << ">> 即将获取 WiFi Version!" << endl;
+        wifiOrder.queryWiFiVersion();
+    }
+    /**
+     * 重置 WiFi 模块
+     */
+    void restartWiFi(DynamicJsonDocument doc)
+    {
+        cout << ">> 即将重置 WiFi 模块!" << endl;
+        HAL_Delay(1000);
+        wifiOrder.resetWiFi();
+    }
     /**
      * 文件操作帮助命令
      */
@@ -96,9 +148,21 @@ private:
         funcMap.insert(make_pair("save", &CmdDevice::saveEnv2File));
         funcMap.insert(make_pair("set", &CmdDevice::setDeviceValues));
         funcMap.insert(make_pair("help", &CmdDevice::displayCmds));
+        funcMap.insert(make_pair("restart", &CmdDevice::restartSystem));
+        funcMap.insert(make_pair("resetWiFi", &CmdDevice::restartWiFi));
+        funcMap.insert(make_pair("queryDate", &CmdDevice::queryDate));
+        funcMap.insert(make_pair("queryMac", &CmdDevice::queryMac));
+        funcMap.insert(make_pair("queryWiFiVersion", &CmdDevice::queryWiFiVersion));
+        funcMap.insert(make_pair("queryNetState", &CmdDevice::queryNetState));
         funcDescMap.insert(make_pair("save", "保存设备变量,example: {\"cmd\":\"device\",\"op\":\"save\"}"));
         funcDescMap.insert(make_pair("set", "设置设备变量,example: {\"cmd\":\"device\",\"op\":\"set\",\"boolCheatA0\":true,\"projectNo\":13104,\"sn\":\"0000DB39188888888341800000130000\",\"boolCheatSN\":true}"));
         funcDescMap.insert(make_pair("help", "帮助,example: {\"cmd\":\"device\",\"op\":\"help\"}"));
+        funcDescMap.insert(make_pair("restart", "重启设备,example: {\"cmd\":\"device\",\"op\":\"restart\"}"));
+        funcDescMap.insert(make_pair("resetWiFi", "重置 WiFi 模块,example: {\"cmd\":\"device\",\"op\":\"resetWiFi\"}"));
+        funcDescMap.insert(make_pair("queryDate", "获取 WiFi 模块时间,example: {\"cmd\":\"device\",\"op\":\"queryDate\"}"));
+        funcDescMap.insert(make_pair("queryMac", "获取 WiFi Mac,example: {\"cmd\":\"device\",\"op\":\"queryMac\"}"));
+        funcDescMap.insert(make_pair("queryWiFiVersion", "获取 WiFi 版本,example: {\"cmd\":\"device\",\"op\":\"queryWiFiVersion\"}"));
+        funcDescMap.insert(make_pair("queryNetState", "获取 WiFi 网络状态,example: {\"cmd\":\"device\",\"op\":\"queryNetState\"}"));
     }
     // 传入函数名，执行对应的函数
     void RunFunc(string funcName, DynamicJsonDocument doc)
