@@ -57,9 +57,18 @@ public:
         cout << ">> 设备项目号 projectNo:    " << projectNo << endl;
         cout << ">> 是否欺骗SN  boolCheatSN:     " << boolCheatSN << endl;
         cout << ">> 设备SN  :    " << sn << endl;
+        cout << ">> 热点前缀(最大长度7)  :    " << hotPrefix << endl;
         cout << endl;
     }
 
+    void setHotPrefix(string _hotPrefix)
+    {
+        hotPrefix = _hotPrefix;
+    }
+    string getHotPrefix()
+    {
+        return hotPrefix;
+    }
     void setSN(string _sn)
     {
         sn = _sn;
@@ -261,6 +270,16 @@ private:
         }
         buffer[len - 1] = orderCheckSum(buffer, len);
     }
+    void processE7(uint8_t *buffer, int len)
+    {
+        int size = hotPrefix.length();
+        buffer[11] = size;
+        for (int i = 0; i < size; ++i)
+        {
+            buffer[12 + i] = hotPrefix.at(i);
+        }
+        buffer[len - 1] = orderCheckSum(buffer, len);
+    }
     void processSN(uint8_t *buffer, int len)
     {
 
@@ -316,6 +335,9 @@ private:
             case 0x07:
                 processSN(buffer, len);
                 break;
+            case 0xE7:
+                processE7(buffer, len);
+                break;
             default:
                 break;
             }
@@ -346,6 +368,7 @@ private:
         doc["boolCheatA0"] = boolCheatA0;
         doc["boolCheatSN"] = boolCheatSN;
         doc["sn"] = sn;
+        doc["hotPrefix"] = hotPrefix;
         return doc;
     }
     /* 反序列化 */
@@ -368,6 +391,11 @@ private:
             const char *_sn = doc["sn"];
             sn = _sn;
         }
+        if (!doc["hotPrefix"].isNull())
+        {
+            const char *_hotPrefix = doc["hotPrefix"];
+            hotPrefix = _hotPrefix;
+        }
         cout << ">> 反序列化成功." << endl;
     }
     // 项目号
@@ -376,6 +404,8 @@ private:
     bool boolCheatA0 = false;
     // 欺骗 SN
     bool boolCheatSN = true;
+    // 热点前缀
+    string hotPrefix = "midea";
     string sn = "0000DB39188888888341800000130000";
     /* 配置保存文件名 */
     string defaultConfigFile = "device.txt";
