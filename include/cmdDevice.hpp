@@ -136,6 +136,12 @@ private:
             string sn = _sn;
             deviceOrder.setSN(sn);
         }
+        if (!doc["hotPrefix"].isNull())
+        {
+            const char *_hotPrefix = doc["hotPrefix"];
+            string hotPrefix = _hotPrefix;
+            deviceOrder.setHotPrefix(hotPrefix);
+        }
         cout << ">> Device 设置完成." << endl;
         deviceOrder.showDeviceConfig();
     }
@@ -155,7 +161,7 @@ private:
         funcMap.insert(make_pair("queryWiFiVersion", &CmdDevice::queryWiFiVersion));
         funcMap.insert(make_pair("queryNetState", &CmdDevice::queryNetState));
         funcDescMap.insert(make_pair("save", "保存设备变量,example: {\"cmd\":\"device\",\"op\":\"save\"}"));
-        funcDescMap.insert(make_pair("set", "设置设备变量,example: {\"cmd\":\"device\",\"op\":\"set\",\"boolCheatA0\":true,\"projectNo\":13104,\"sn\":\"0000DB39188888888341800000130000\",\"boolCheatSN\":true}"));
+        funcDescMap.insert(make_pair("set", "设置设备变量,example: {\"cmd\":\"device\",\"op\":\"set\",\"boolCheatA0\":true,\"projectNo\":13104,\"sn\":\"0000DB39188888888341800000130000\",\"boolCheatSN\":true,\"hotPrefix\":\"midea\"}"));
         funcDescMap.insert(make_pair("help", "帮助,example: {\"cmd\":\"device\",\"op\":\"help\"}"));
         funcDescMap.insert(make_pair("restart", "重启设备,example: {\"cmd\":\"device\",\"op\":\"restart\"}"));
         funcDescMap.insert(make_pair("resetWiFi", "重置 WiFi 模块,example: {\"cmd\":\"device\",\"op\":\"resetWiFi\"}"));
