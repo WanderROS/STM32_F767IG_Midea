@@ -255,8 +255,34 @@ private:
     {
         if (boolCheatA0)
         {
-            buffer[31] = projectNo & 0xFF;
-            buffer[32] = projectNo / 255;
+            if (buffer[2] == 0xdb || buffer[2] == 0xdc || buffer[2] == 0xda)
+            {
+                buffer[31] = projectNo & 0xFF;
+                buffer[32] = projectNo / 255;
+            }
+            else if (buffer[2] == 0xd9)
+            {
+                for (int i = 11; i < len;)
+                {
+                    char type = buffer[i];
+                    i++;
+                    if (len <= i)
+                    {
+                        break;
+                    }
+                    int length = buffer[i];
+                    if (type == 0x2b)
+                    {
+                        buffer[i + 1] = projectNo & 0xFF;
+                        buffer[i + 2] = projectNo / 255;
+                        break;
+                    }
+                    else
+                    {
+                        i += length + 1;
+                    }
+                }
+            }
         }
 
         buffer[len - 1] = orderCheckSum(buffer, len);
@@ -265,8 +291,34 @@ private:
     {
         if (boolCheatA0)
         {
-            buffer[31] = projectNo & 0xFF;
-            buffer[32] = projectNo / 255;
+            if (buffer[2] == 0xdb || buffer[2] == 0xdc || buffer[2] == 0xda)
+            {
+                buffer[31] = projectNo & 0xFF;
+                buffer[32] = projectNo / 255;
+            }
+            else if (buffer[2] == 0xd9)
+            {
+                for (int i = 11; i < len;)
+                {
+                    char type = buffer[i];
+                    i++;
+                    if (len <= i)
+                    {
+                        break;
+                    }
+                    int length = buffer[i];
+                    if (type == 0x2b)
+                    {
+                        buffer[i + 1] = projectNo & 0xFF;
+                        buffer[i + 2] = projectNo / 255;
+                        break;
+                    }
+                    else
+                    {
+                        i += length + 1;
+                    }
+                }
+            }
         }
         buffer[len - 1] = orderCheckSum(buffer, len);
     }
