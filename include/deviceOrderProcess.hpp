@@ -322,6 +322,66 @@ private:
         }
         buffer[len - 1] = orderCheckSum(buffer, len);
     }
+    void process02(uint8_t *buffer, int len)
+    {
+        // 0202 回复
+        if (boolOffUpload && buffer[10] == 0x02)
+        {
+
+            buffer[9] = 0x04;
+            buffer[10] = 0x04;
+            if (buffer[2] == 0xdb || buffer[2] == 0xdc || buffer[2] == 0xda)
+            {
+                buffer[31] = projectNo & 0xFF;
+                buffer[32] = projectNo / 255;
+            }
+            else if (buffer[2] == 0xd9)
+            {
+                for (int i = 11; i < len;)
+                {
+                    char type = buffer[i];
+                    i++;
+                    if (len <= i)
+                    {
+                        break;
+                    }
+                    int length = buffer[i];
+                    if (type == 0x2b)
+                    {
+                        buffer[i + 1] = projectNo & 0xFF;
+                        buffer[i + 2] = projectNo / 255;
+                        break;
+                    }
+                    else
+                    {
+                        i += length + 1;
+                    }
+                }
+            }
+            buffer[len - 1] = orderCheckSum(buffer, len);
+            if (systemConfig.getBoolDeviceOutEcho())
+            {
+                printf(">> 02补偿04，设备输出: ");
+            }
+
+            for (int i = 0; i < ulDeviceRecvSize; ++i)
+            {
+                if (systemConfig.getBoolDeviceOutEcho())
+                {
+                    printf("%02x ", ucDeviceRecvBuffer[i]);
+                }
+
+                HAL_UART_Transmit(&UartWiFiHandle, (uint8_t *)(ucDeviceRecvBuffer + i), 1, 1000);
+            }
+            if (systemConfig.getBoolDeviceOutEcho())
+            {
+                printf("\n");
+            }
+        }
+        buffer[9] = 0x02;
+        buffer[10] = 0x02;
+        buffer[len - 1] = orderCheckSum(buffer, len);
+    }
     void processE7(uint8_t *buffer, int len)
     {
         int size = hotPrefix.length();
@@ -383,6 +443,9 @@ private:
                 break;
             case 0x03:
                 process03(buffer, len);
+                break;
+            case 0x02:
+                process02(buffer, len);
                 break;
             case 0x07:
                 processSN(buffer, len);
@@ -454,6 +517,8 @@ private:
     uint16_t projectNo = 13105;
     // 欺骗项目号,项目号四个品类都是一样的处理逻辑
     bool boolCheatA0 = false;
+    // 关机补偿
+    bool boolOffUpload = true;
     // 欺骗 SN
     bool boolCheatSN = true;
     // 热点前缀
